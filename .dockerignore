@@ -1,0 +1,6 @@
+rust-engine/target/
+node_modules/
+dist/
+.git
+.env
+*.log

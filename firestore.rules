@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Only Cloud Run backend service with Admin IAM writes audit logs
+    // Read-only access for authorized compliance dashboard users
+    match /audit_logs/{auditId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Only written via Cloud Run service account
+    }
+
+    match /sar_reports/{reportId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+  }
+}

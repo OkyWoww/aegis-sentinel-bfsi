@@ -1,0 +1,27 @@
+# Rust build artifacts
+target/
+**/*.rs.bk
+*.pdb
+
+# Version control & environments
+.git/
+.gitignore
+.env
+.env.*
+*.local
+
+# Logs & temp files
+*.log
+tmp/
+temp/
+
+# IDE & Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Tests & benchmarks (keep image context lightweight)
+benches/
+tests/
+loadtest/

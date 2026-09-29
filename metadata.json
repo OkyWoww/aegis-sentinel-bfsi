@@ -1,0 +1,6 @@
+{
+  "name": "AegisSentinel BFSI - Sub-10ms Fraud Engine & SAR Generator",
+  "description": "High-performance fraud detection engine with in-memory sliding window, sub-10ms scoring, Gemini SAR narrative generator, and Wald SPOF mitigations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

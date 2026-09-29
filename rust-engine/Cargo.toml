@@ -1,0 +1,26 @@
+[package]
+name = "aegis-sentinel"
+version = "0.2.0"
+edition = "2021"
+authors = ["LogicForge AI <team@logicforge.ai>"]
+description = "AegisSentinel BFSI - Sub-10ms Fraud Detection Engine & Structured Gemini SAR Generator"
+
+[dependencies]
+axum = { version = "0.7", features = ["macros"] }
+tokio = { version = "1.37", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+moka = { version = "0.12", features = ["future", "sync"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+chrono = { version = "0.4", features = ["serde"] }
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+clap = { version = "4.5", features = ["derive", "env"] }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["async_tokio"] }
+
+[[bench]]
+name = "scoring_bench"
+harness = false
