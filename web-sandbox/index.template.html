@@ -512,7 +512,9 @@
     // -------------------------------------------------------------
     const PRIMARY_GEMINI_MODEL = "gemini-3.8-flash";
     const BACKUP_GEMINI_MODEL = "gemini-3.5-flash-lite";
-    const BACKEND_SAR_ENDPOINT = "http://localhost:8080/v1/sar";
+    const BACKEND_SAR_ENDPOINT = (typeof window !== 'undefined' && window.location.origin && (window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1")))
+      ? "/v1/sar"
+      : "http://localhost:8080/v1/sar";
 
     const SAR_COOLDOWN_MS = 15000; // 15 seconds cooldown guard
     const SAR_MAX_CALLS = 20;     // Maximum calls per session (Spark Zero Billing)

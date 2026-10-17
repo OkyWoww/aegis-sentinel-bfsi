@@ -4,7 +4,7 @@ use std::time::Instant;
 use axum::{
     extract::State,
     http::{header, HeaderMap, StatusCode},
-    response::IntoResponse,
+    response::{Html, IntoResponse},
     routing::{get, post},
     Json, Router,
 };
@@ -94,6 +94,7 @@ async fn main() {
         .allow_headers(Any);
 
     let app = Router::new()
+        .route("/", get(index_handler))
         .route("/health", get(health_check))
         .route("/healthz", get(health_check))
         .route("/v1/score", post(score_handler))
@@ -106,6 +107,10 @@ async fn main() {
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();
+}
+
+async fn index_handler() -> impl IntoResponse {
+    Html(include_str!("../../web-sandbox/public/index.html"))
 }
 
 async fn health_check() -> impl IntoResponse {
