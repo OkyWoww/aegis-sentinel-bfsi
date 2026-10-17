@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AegisSentinel BFSI — Interactive Sandbox & Demo Engine</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+              950: '#1e1b4b',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Menlo', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @keyframes pulse-subtle {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.6;
+      }
+    }
+
+    .animate-pulse-subtle {
+      animation: pulse-subtle 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
+</head>
+
+<body
+  class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div
+          class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg font-bold text-white tracking-tight">AegisSentinel BFSI</h1>
+            <span
+              class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+              INTERACTIVE SANDBOX
+            </span>
+            <span
+              class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+              INDEPENDENT JS DEMO ENGINE
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Zero-Billing Spark Sandbox for Jury Evaluation & Rule Validation</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div
+          class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Primary: <code id="navPrimaryModel" class="text-indigo-300 font-mono"></code></span>
+          <span class="text-slate-600">|</span>
+          <span>Backup: <code id="navBackupModel" class="text-slate-400 font-mono"></code></span>
+        </div>
+        <a href="https://github.com/OkyWoww/aegis-sentinel-bfsi" target="_blank" rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 transition">
+          <svg class="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 24 24">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+          </svg>
+          <span>Rust Engine Repo</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Honest Audit Transparency Notice -->
+    <div class="rounded-xl border border-indigo-500/20 bg-indigo-950/30 p-4 relative overflow-hidden">
+      <div class="flex items-start gap-3.5">
+        <div class="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 mt-0.5 shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="space-y-1 text-xs leading-relaxed text-indigo-200/90">
+          <div class="flex items-center gap-2">
+            <span class="font-semibold text-white uppercase tracking-wider text-[11px]">Audit Transparency
+              Disclosure</span>
+            <span
+              class="inline-flex items-center px-2 py-0.2 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              VERIFIED TELEMETRY (FROM LOCAL ENGINE)
+            </span>
+          </div>
+          <p>
+            This page is an <strong>Interactive Sandbox</strong>: an <strong>independent client-side JavaScript
+              implementation</strong> of the scoring engine and sliding window, built so judges and evaluators can test
+            the logic in the browser on the Firebase Spark Plan (zero billing).
+            The production AegisSentinel engine is written in <strong>Rust (Axum)</strong> (sub-millisecond, 142 µs P99
+            in the local benchmark), and its Criterion benchmark results are available in the GitHub repository.
+            This page does <em>not</em> run any Rust or WASM code. All risk telemetry shown below comes from local
+            calculation in this page and is passed to Gemini only for narrative generation.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toolbar: Presets & Benchmarks -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 shadow-sm space-y-3">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Scenario Presets <span
+            class="normal-case font-normal text-slate-500">(local only, no API calls except on BLOCK)</span></span>
+        <button id="btnRunBenchmark" onclick="runHonestBenchmark()"
+          class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 transition flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <span>Benchmark JS Engine (1,000x)</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+        <button id="btnPreset1" onclick="applyPreset(1)"
+          class="px-3 py-2.5 rounded-lg text-left bg-slate-800 hover:bg-slate-700 hover:-translate-y-0.5 text-slate-200 border border-slate-700 transition">
+          <span class="flex items-center gap-2 text-xs font-semibold"><span
+              class="w-2 h-2 rounded-full bg-emerald-400"></span>Preset 1: Normal Baseline</span>
+          <span class="block mt-0.5 text-[10px] text-slate-400">Clears state, evaluates 1 tx</span>
+        </button>
+        <button id="btnPreset2" onclick="applyPreset(2)"
+          class="px-3 py-2.5 rounded-lg text-left bg-slate-800 hover:bg-slate-700 hover:-translate-y-0.5 text-slate-200 border border-slate-700 transition">
+          <span class="flex items-center gap-2 text-xs font-semibold"><span
+              class="w-2 h-2 rounded-full bg-amber-400"></span>Preset 2: Velocity Burst</span>
+          <span class="block mt-0.5 text-[10px] text-slate-400">Seeds 4 prior txs, evaluates 1</span>
+        </button>
+        <button id="btnPreset3" onclick="applyPreset(3)"
+          class="px-3 py-2.5 rounded-lg text-left bg-slate-800 hover:bg-slate-700 hover:-translate-y-0.5 text-slate-200 border border-slate-700 transition">
+          <span class="flex items-center gap-2 text-xs font-semibold"><span
+              class="w-2 h-2 rounded-full bg-rose-400"></span>Preset 3: High-Risk Burst</span>
+          <span class="block mt-0.5 text-[10px] text-slate-400">Seeds 4 prior txs, evaluates 1</span>
+        </button>
+        <button id="btnClearState" onclick="clearWindowState()"
+          class="px-3 py-2.5 rounded-lg text-left bg-slate-950 hover:bg-slate-800 hover:-translate-y-0.5 text-slate-300 border border-slate-800 transition">
+          <span class="flex items-center gap-2 text-xs font-semibold">
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Clear Window State
+          </span>
+          <span class="block mt-0.5 text-[10px] text-slate-500">Empties the ledger, no evaluation</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Engine Status & Model Fallback Bar -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between">
+        <div>
+          <div class="text-[11px] text-slate-400 font-medium">Primary GenAI Model</div>
+          <div id="statPrimaryModel" class="text-sm font-semibold text-indigo-300 font-mono truncate"></div>
+        </div>
+        <span
+          class="px-2 py-0.5 rounded text-[10px] font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Active</span>
+      </div>
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between">
+        <div>
+          <div class="text-[11px] text-slate-400 font-medium">Fallback Backup Model</div>
+          <div id="statBackupModel" class="text-sm font-semibold text-slate-300 font-mono truncate"></div>
+        </div>
+        <span
+          class="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-800 text-slate-400 border border-slate-700">Fallback</span>
+      </div>
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between">
+        <div>
+          <div class="text-[11px] text-slate-400 font-medium">SAR Quota (Spark Free Tier)</div>
+          <div class="text-sm font-semibold text-white font-mono"><span id="sarCallCount">0</span> / <span
+              id="sarMaxCalls">20</span> Calls</div>
+        </div>
+        <span id="sarQuotaBadge"
+          class="px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Available</span>
+      </div>
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between">
+        <div>
+          <div class="text-[11px] text-slate-400 font-medium">Cooldown Guard (15s)</div>
+          <div id="sarCooldownText" class="text-sm font-semibold text-emerald-400 font-mono">READY</div>
+        </div>
+        <div id="cooldownIndicator" class="w-3 h-3 rounded-full bg-emerald-400"></div>
+      </div>
+    </div>
+
+    <!-- Two Column Layout: Simulator & Evaluation -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Left Column: Input Form & Sliding Window Table (7 cols) -->
+      <div class="lg:col-span-7 space-y-6">
+        <!-- Input Form -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h2 class="text-sm font-bold text-white flex items-center gap-2">
+              <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
+              <span>Transaction Scoring Simulator</span>
+            </h2>
+            <span class="text-xs text-slate-400 font-mono">Local Sliding Window Engine</span>
+          </div>
+
+          <form id="txForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="inputAccount" class="block text-xs font-medium text-slate-300 mb-1">Account ID /
+                  IBAN</label>
+                <input type="text" id="inputAccount" required value="ACC-88219"
+                  class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                <span class="text-[10px] text-slate-500">Subject account identifier</span>
+              </div>
+              <div>
+                <label for="inputAmount" class="block text-xs font-medium text-slate-300 mb-1">Amount (IDR)</label>
+                <input type="number" id="inputAmount" required min="1" step="1" value="4850000"
+                  class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                <span class="text-[10px] text-slate-500">Structuring threshold: 4.5M - 5M</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="inputSpeed" class="block text-xs font-medium text-slate-300 mb-1">Geo-Velocity Speed
+                  (km/h)</label>
+                <input type="number" id="inputSpeed" required min="0" max="2500" value="45"
+                  class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                <span class="text-[10px] text-slate-500">Flagged if &gt; 800 km/h (Impossible travel)</span>
+              </div>
+              <div class="flex items-center pt-5">
+                <label class="relative flex items-center cursor-pointer select-none">
+                  <input type="checkbox" id="inputDeviceModified" class="sr-only peer">
+                  <div
+                    class="w-10 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-600">
+                  </div>
+                  <span class="ml-3 text-xs font-medium text-slate-300">New / Modified Device Fingerprint</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="pt-2 flex items-center justify-between">
+              <span class="text-xs text-slate-400">Evaluates in memory against 5m ledger snapshot</span>
+              <button type="submit" id="btnEvaluate"
+                class="px-5 py-2 rounded-lg text-xs font-semibold bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white shadow-lg shadow-indigo-600/30 transition flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Evaluate Transaction</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- In-Memory Sliding Window Ledger Viewer -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-sm space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>5-Minute Sliding Window State (Real-Time Memory Ledger)</span>
+              </h2>
+              <p class="text-[11px] text-slate-400">Stores evaluated transactions in memory. Auto-prunes events older
+                than 300 seconds.</p>
+            </div>
+            <div class="text-xs font-mono px-2 py-1 rounded bg-slate-950 border border-slate-800 text-slate-300">
+              Active: <span id="windowLedgerCount" class="font-bold text-cyan-400">0</span> records
+            </div>
+          </div>
+
+          <div class="overflow-x-auto max-h-56 overflow-y-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-slate-800 text-slate-400 font-mono text-[11px]">
+                  <th class="py-2 px-3">Tx ID</th>
+                  <th class="py-2 px-3">Time</th>
+                  <th class="py-2 px-3">Account</th>
+                  <th class="py-2 px-3">Amount</th>
+                  <th class="py-2 px-3">Speed</th>
+                  <th class="py-2 px-3">Score</th>
+                  <th class="py-2 px-3">Verdict</th>
+                </tr>
+              </thead>
+              <tbody id="ledgerTableBody" class="divide-y divide-slate-800/60 font-mono text-[11px] text-slate-300">
+                <tr id="emptyLedgerRow">
+                  <td colspan="7" class="py-6 text-center text-slate-500 italic">No transactions currently in active
+                    5-minute sliding window. Use presets or evaluate a transaction.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Benchmark Results Card (Collapsible/Dynamic) -->
+        <div id="benchmarkBox" class="hidden bg-slate-900/90 border border-indigo-500/30 rounded-xl p-4 space-y-2">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <span class="text-xs font-bold text-indigo-300 uppercase tracking-wider flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              Benchmark Execution Report (Honest In-Browser JS Loop)
+            </span>
+            <span class="text-[11px] text-slate-400 font-mono">1,000 Iterations</span>
+          </div>
+          <div class="grid grid-cols-3 gap-3 text-center pt-1 font-mono">
+            <div class="p-2 rounded-lg bg-slate-950 border border-slate-800">
+              <div class="text-[10px] text-slate-400">Total Duration</div>
+              <div id="benchTotalMs" class="text-sm font-bold text-white">0.00 ms</div>
+            </div>
+            <div class="p-2 rounded-lg bg-indigo-950/40 border border-indigo-800/40">
+              <div class="text-[10px] text-indigo-300 font-sans">Avg Latency / Tx</div>
+              <div id="benchAvgUs" class="text-sm font-bold text-indigo-400">0.00 µs</div>
+            </div>
+            <div class="p-2 rounded-lg bg-slate-950 border border-slate-800">
+              <div class="text-[10px] text-slate-400">Throughput</div>
+              <div id="benchTps" class="text-sm font-bold text-cyan-400">0 tx/sec</div>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-400 italic">
+            * This benchmark times the pure, deterministic scoring function (no I/O) in your own browser. The Rust Axum
+            engine in the GitHub repository measured sub-millisecond latency (142 µs P99 in the local benchmark); the
+            two numbers are not directly comparable.
+          </p>
+        </div>
+      </div>
+
+      <!-- Right Column: Decision, Telemetry & GenAI SAR Report (5 cols) -->
+      <div class="lg:col-span-5 space-y-6">
+
+        <!-- Real-Time Decision Card -->
+        <div id="decisionCard"
+          class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-sm space-y-4 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Scoring Engine Verdict</span>
+            <span id="decisionBadge"
+              class="px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-400 border border-slate-700">
+              AWAITING INPUT
+            </span>
+          </div>
+
+          <!-- Risk Score Gauge -->
+          <div class="space-y-1.5">
+            <div class="flex justify-between items-baseline font-mono text-xs">
+              <span class="text-slate-400">Calculated Risk Score:</span>
+              <span id="scoreText" class="text-lg font-bold text-white">-- / 100</span>
+            </div>
+            <div class="w-full bg-slate-950 rounded-full h-3 overflow-hidden border border-slate-800">
+              <div id="scoreBar" class="h-full bg-slate-700 transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+              <span>0 (Low Risk)</span>
+              <span>50 (Review)</span>
+              <span>80 (Block Threshold)</span>
+              <span>100 (Max)</span>
+            </div>
+          </div>
+
+          <!-- Signals & Stats -->
+          <div class="grid grid-cols-2 gap-3 pt-2 font-mono text-xs">
+            <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+              <div class="text-[10px] text-slate-400">Engine Latency</div>
+              <div id="evalLatencyText" class="text-sm font-semibold text-cyan-400">-- µs</div>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+              <div class="text-[10px] text-slate-400">Window Velocity (5m)</div>
+              <div id="evalVelocityText" class="text-sm font-semibold text-white">-- txs</div>
+            </div>
+          </div>
+
+          <!-- Triggered Reasons List -->
+          <div class="space-y-1.5 pt-1">
+            <div class="text-xs font-semibold text-slate-400">Triggered Anomaly Signals:</div>
+            <div id="signalsContainer" class="flex flex-wrap gap-1.5 min-h-[28px] items-center">
+              <span class="text-xs text-slate-500 italic">No signals triggered yet.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- GenAI Suspicious Activity Report (SAR) Panel -->
+        <div id="sarPanel" class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <h2 class="text-sm font-bold text-white">Automated SAR Narrative Generator</h2>
+            </div>
+            <span id="sarStatusBadge"
+              class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-400 border border-slate-700">
+              STANDBY
+            </span>
+          </div>
+
+          <!-- Verified Telemetry Guard Box -->
+          <div class="rounded-lg bg-slate-950 border border-emerald-500/30 p-3 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                VERIFIED TELEMETRY (FROM LOCAL ENGINE)
+              </span>
+              <span class="text-[9px] text-emerald-300 font-mono">Immutable Local Fact</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-[11px] font-mono text-slate-300">
+              <div>Account: <span id="telemetryAccount" class="text-white font-semibold">--</span></div>
+              <div>Amount: <span id="telemetryAmount" class="text-white font-semibold">--</span></div>
+              <div>Score: <span id="telemetryScore" class="text-white font-semibold">--</span></div>
+              <div>Velocity: <span id="telemetryVelocity" class="text-white font-semibold">--</span></div>
+            </div>
+            <div class="text-[11px] font-mono text-slate-300 truncate">
+              Signals: <span id="telemetrySignals" class="text-indigo-300">--</span>
+            </div>
+          </div>
+
+          <!-- SAR Generation Progress/Status Area -->
+          <div id="sarLoadingState" class="hidden py-4 text-center space-y-2">
+            <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-indigo-500 border-t-transparent">
+            </div>
+            <p id="sarLoadingText" class="text-xs text-indigo-300 animate-pulse">Requesting Structured Output from
+              Gemini...</p>
+          </div>
+
+          <!-- SAR Content Display -->
+          <div id="sarContent" class="space-y-3 text-xs leading-relaxed">
+            <div id="sarPlaceholderText" class="py-6 text-center text-slate-500 text-xs italic">
+              SAR generation is triggered automatically when the risk score reaches the <strong
+                class="text-rose-400">BLOCK (&gt;= 80)</strong> threshold.
+              Use <span class="text-rose-300 font-medium">Preset 3: High-Risk Burst</span> to test the GenAI chain.
+            </div>
+
+            <div id="sarResultArea" class="hidden space-y-3">
+              <div>
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Executive
+                  Summary</span>
+                <p id="sarExecutiveSummary"
+                  class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 text-xs"></p>
+              </div>
+
+              <div>
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">AML Typology
+                  Analysis</span>
+                <p id="sarTypologyAnalysis"
+                  class="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 text-xs"></p>
+              </div>
+
+              <div>
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Recommended
+                  Regulatory Actions</span>
+                <ul id="sarRecommendedActions"
+                  class="space-y-1 p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 text-xs list-disc list-inside">
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 mt-12 py-6 bg-slate-950 text-slate-500 text-xs text-center space-y-1">
+    <p>AegisSentinel BFSI &bull; Sub-10ms Fraud Prevention & AML Compliance Architecture</p>
+    <p class="text-[11px] text-slate-600">Client-Side Verification Sandbox on Firebase Spark Plan &bull; Independent JS
+      Implementation</p>
+  </footer>
+
+  <!-- Script Logic -->
+  <script>
+    // -------------------------------------------------------------
+    // Constants & Dynamic Configuration
+    // -------------------------------------------------------------
+    const PRIMARY_GEMINI_MODEL = "gemini-3.8-flash";
+    const BACKUP_GEMINI_MODEL = "gemini-3.5-flash-lite";
+    const GEMINI_API_KEY = "__GEMINI_API_KEY__";
+
+    const SAR_COOLDOWN_MS = 15000; // 15 seconds cooldown guard
+    const SAR_MAX_CALLS = 20;     // Maximum calls per session (Spark Zero Billing)
+
+    // -------------------------------------------------------------
+    // In-Memory State
+    // -------------------------------------------------------------
+    let transactionLedger = [];   // 5-minute sliding window array
+    let sarInFlight = false;
+    let lastSarCallTime = 0;
+    let sarCallCount = 0;
+    let cooldownTimerInterval = null;
+
+    // -------------------------------------------------------------
+    // Initialization & UI Dynamic Binding
+    // -------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      // Dynamically populate model names in UI (strictly no hardcoded strings)
+      document.getElementById('navPrimaryModel').textContent = PRIMARY_GEMINI_MODEL;
+      document.getElementById('navBackupModel').textContent = BACKUP_GEMINI_MODEL;
+      document.getElementById('statPrimaryModel').textContent = PRIMARY_GEMINI_MODEL;
+      document.getElementById('statBackupModel').textContent = BACKUP_GEMINI_MODEL;
+      document.getElementById('sarMaxCalls').textContent = SAR_MAX_CALLS;
+      updateCooldownUI();
+      renderLedger();
+    });
+
+    // -------------------------------------------------------------
+    // Core Scoring Rule Engine (Client-Side JS Demo Implementation)
+    // -------------------------------------------------------------
+    function calculateRisk(account, amount, speed, deviceModified, recordToLedger = true) {
+      const tStart = performance.now();
+      const now = Date.now();
+
+      // Sliding window pruning: prune transactions older than 5 minutes (300,000 ms)
+      transactionLedger = transactionLedger.filter(tx => (now - tx.timestamp) <= 300000);
+
+      // Filter account history in window
+      const accountHistory = transactionLedger.filter(tx => tx.account === account);
+
+      let score = 0;
+      let reasons = [];
+
+      // 1. Velocity Burst: More than 3 transactions within 30 seconds
+      const recent30sCount = accountHistory.filter(tx => (now - tx.timestamp) <= 30000).length;
+      if (recent30sCount >= 3) {
+        score += 45;
+        reasons.push("VELOCITY_BURST");
+      }
+
+      // 2. AML Structuring Suspect: Transactions clustered near 5,000,000 (IDR 4.5M - 5M)
+      const isCandidate = amount >= 4500000 && amount < 5000000;
+      if (isCandidate) {
+        const priorStructuring = accountHistory.filter(
+          tx => tx.amount >= 4500000 && tx.amount < 5000000 && (now - tx.timestamp) <= 300000
+        ).length;
+        if (priorStructuring >= 1) {
+          const addScore = priorStructuring >= 2 ? 45 : 35;
+          score += addScore;
+          reasons.push("STRUCTURING_SUSPECT");
+        }
+      }
+
+      // 3. New Device Fingerprint Anomaly
+      if (deviceModified) {
+        score += 15;
+        reasons.push("NEW_DEVICE_OR_MODIFIED_ENV");
+      }
+
+      // 4. Geo-Velocity / Impossible Travel (Speed > 800 km/h)
+      if (speed > 800) {
+        score += 50;
+        reasons.push("GEO_IMPOSSIBILITY");
+      }
+
+      // 5. High Value Threshold Anomaly (> IDR 50,000,000)
+      if (amount >= 50000000) {
+        score += 25;
+        reasons.push("HIGH_VALUE_THRESHOLD_EXCEEDED");
+      }
+
+      // Cap score at 100
+      if (score > 100) {
+        score = 100;
+      }
+
+      // Decision Thresholding
+      let decision = "ALLOW";
+      if (score >= 80) {
+        decision = "BLOCK";
+      } else if (score >= 50) {
+        decision = "REVIEW";
+      } else {
+        decision = "ALLOW";
+      }
+
+      const tEnd = performance.now();
+      const latencyUs = Math.max(1, Math.round((tEnd - tStart) * 1000));
+
+      const res = {
+        id: "TXN-" + Math.random().toString(36).substring(2, 8).toUpperCase(),
+        account,
+        amount: Number(amount),
+        speed: Number(speed),
+        deviceModified: Boolean(deviceModified),
+        score,
+        decision,
+        reasons,
+        velocityCount: accountHistory.length + (recordToLedger ? 1 : 0),
+        recent30sCount: recent30sCount + (recordToLedger ? 1 : 0),
+        latencyUs,
+        timestamp: now
+      };
+
+      if (recordToLedger) {
+        transactionLedger.unshift(res);
+      }
+
+      return res;
+    }
+
+    // -------------------------------------------------------------
+    // Form & UI Handler
+    // -------------------------------------------------------------
+    function handleFormSubmit(e) {
+      if (e) e.preventDefault();
+
+      const account = document.getElementById('inputAccount').value.trim() || 'ACC-88219';
+      const amount = parseFloat(document.getElementById('inputAmount').value) || 0;
+      const speed = parseFloat(document.getElementById('inputSpeed').value) || 0;
+      const deviceModified = document.getElementById('inputDeviceModified').checked;
+
+      const res = calculateRisk(account, amount, speed, deviceModified, true);
+      renderEvaluationResult(res);
+      renderLedger();
+
+      // Trigger GenAI SAR flow only upon BLOCK verdict
+      if (res.decision === "BLOCK") {
+        triggerSarGeneration(res);
+      } else {
+        resetSarPanelNonBlock(res.decision);
+      }
+    }
+
+    function renderEvaluationResult(res) {
+      // Score Text & Bar
+      document.getElementById('scoreText').textContent = res.score + ' / 100';
+      const scoreBar = document.getElementById('scoreBar');
+      scoreBar.style.width = res.score + '%';
+
+      // Latency & Velocity
+      document.getElementById('evalLatencyText').textContent = res.latencyUs + ' µs';
+      document.getElementById('evalVelocityText').textContent = res.velocityCount + ' in 5m';
+
+      // Decision Badge & Colors
+      const badge = document.getElementById('decisionBadge');
+      badge.textContent = res.decision;
+      badge.className = "px-3 py-1 rounded-full text-xs font-bold border transition-colors";
+
+      if (res.decision === "BLOCK") {
+        badge.classList.add("bg-rose-500/10", "text-rose-400", "border-rose-500/30");
+        scoreBar.className = "h-full bg-rose-500 transition-all duration-500";
+      } else if (res.decision === "REVIEW") {
+        badge.classList.add("bg-amber-500/10", "text-amber-400", "border-amber-500/30");
+        scoreBar.className = "h-full bg-amber-500 transition-all duration-500";
+      } else {
+        badge.classList.add("bg-emerald-500/10", "text-emerald-400", "border-emerald-500/30");
+        scoreBar.className = "h-full bg-emerald-500 transition-all duration-500";
+      }
+
+      // Signals Container
+      const signalsContainer = document.getElementById('signalsContainer');
+      signalsContainer.innerHTML = '';
+      if (!res.reasons || res.reasons.length === 0) {
+        signalsContainer.innerHTML = '<span class="text-xs text-slate-500 italic">No anomaly signals triggered.</span>';
+      } else {
+        res.reasons.forEach(r => {
+          const pill = document.createElement('span');
+          pill.className = "px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-rose-500/10 text-rose-300 border border-rose-500/20";
+          pill.textContent = r;
+          signalsContainer.appendChild(pill);
+        });
+      }
+
+      // Update Verified Telemetry Facts
+      updateTelemetryBox(res);
+    }
+
+    function updateTelemetryBox(res) {
+      document.getElementById('telemetryAccount').textContent = res.account;
+      document.getElementById('telemetryAmount').textContent = 'IDR ' + res.amount.toLocaleString();
+      document.getElementById('telemetryScore').textContent = res.score + '/100 (' + res.decision + ')';
+      document.getElementById('telemetryVelocity').textContent = res.velocityCount + ' txs / 5m';
+      document.getElementById('telemetrySignals').textContent = (res.reasons && res.reasons.length > 0) ? res.reasons.join(', ') : 'None';
+    }
+
+    function renderLedger() {
+      const tbody = document.getElementById('ledgerTableBody');
+      const countEl = document.getElementById('windowLedgerCount');
+      countEl.textContent = transactionLedger.length;
+
+      if (transactionLedger.length === 0) {
+        tbody.innerHTML = `
+          <tr id="emptyLedgerRow">
+            <td colspan="7" class="py-6 text-center text-slate-500 italic">No transactions currently in active 5-minute sliding window. Use presets or evaluate a transaction.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      transactionLedger.slice(0, 15).forEach(tx => {
+        const tr = document.createElement('tr');
+        tr.className = "border-b border-slate-800/40 hover:bg-slate-800/30 transition";
+
+        const timeStr = new Date(tx.timestamp).toLocaleTimeString();
+        let verdictColor = "text-emerald-400";
+        if (tx.decision === "BLOCK") verdictColor = "text-rose-400 font-bold";
+        else if (tx.decision === "REVIEW") verdictColor = "text-amber-400";
+
+        tr.innerHTML = `
+          <td class="py-2 px-3 text-slate-400">${tx.id}</td>
+          <td class="py-2 px-3 text-slate-500">${timeStr}</td>
+          <td class="py-2 px-3 text-white">${tx.account}</td>
+          <td class="py-2 px-3 text-slate-300">IDR ${tx.amount.toLocaleString()}</td>
+          <td class="py-2 px-3 text-slate-400">${tx.speed} km/h</td>
+          <td class="py-2 px-3 text-slate-300">${tx.score}</td>
+          <td class="py-2 px-3 ${verdictColor}">${tx.decision}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // -------------------------------------------------------------
+    // Scenario Presets (Transparent & Zero-Spam)
+    // -------------------------------------------------------------
+    function applyPreset(presetNum) {
+      const now = Date.now();
+
+      if (presetNum === 1) {
+        // Preset 1: Normal Baseline (clears state, evaluates 1 tx)
+        transactionLedger = [];
+        document.getElementById('inputAccount').value = 'ACC-BASELINE-101';
+        document.getElementById('inputAmount').value = '350000';
+        document.getElementById('inputSpeed').value = '15';
+        document.getElementById('inputDeviceModified').checked = false;
+
+        const res = calculateRisk('ACC-BASELINE-101', 350000, 15, false, true);
+        renderEvaluationResult(res);
+        renderLedger();
+        resetSarPanelNonBlock('ALLOW');
+
+      } else if (presetNum === 2) {
+        // Preset 2: Velocity Burst (seeds 4 prior txs in 20s, evaluates 1)
+        transactionLedger = [];
+        const account = 'ACC-VELOCITY-202';
+        for (let i = 0; i < 4; i++) {
+          transactionLedger.push({
+            id: 'TXN-SEED-' + (i + 1),
+            account: account,
+            amount: 1500000,
+            speed: 20,
+            deviceModified: false,
+            score: 0,
+            decision: 'ALLOW',
+            reasons: [],
+            velocityCount: i + 1,
+            recent30sCount: i + 1,
+            latencyUs: 5,
+            timestamp: now - (20 - i * 4) * 1000 // All within last 20 seconds
+          });
+        }
+
+        document.getElementById('inputAccount').value = account;
+        document.getElementById('inputAmount').value = '1500000';
+        document.getElementById('inputSpeed').value = '25';
+        document.getElementById('inputDeviceModified').checked = false;
+
+        const res = calculateRisk(account, 1500000, 25, false, true);
+        renderEvaluationResult(res);
+        renderLedger();
+        resetSarPanelNonBlock(res.decision);
+
+      } else if (presetNum === 3) {
+        // Preset 3: High-Risk Burst (seeds 4 prior txs clustered at 4.85M, evaluates 1)
+        transactionLedger = [];
+        const account = 'ACC-CRITICAL-999';
+        for (let i = 0; i < 4; i++) {
+          transactionLedger.push({
+            id: 'TXN-SEED-' + (i + 1),
+            account: account,
+            amount: 4850000,
+            speed: 40,
+            deviceModified: false,
+            score: 35,
+            decision: 'ALLOW',
+            reasons: ['STRUCTURING_SUSPECT'],
+            velocityCount: i + 1,
+            recent30sCount: i + 1,
+            latencyUs: 6,
+            timestamp: now - (25 - i * 5) * 1000
+          });
+        }
+
+        document.getElementById('inputAccount').value = account;
+        document.getElementById('inputAmount').value = '4920000';
+        document.getElementById('inputSpeed').value = '920'; // > 800 km/h
+        document.getElementById('inputDeviceModified').checked = true;
+
+        const res = calculateRisk(account, 4920000, 920, true, true);
+        renderEvaluationResult(res);
+        renderLedger();
+
+        // This evaluates to score 100 (BLOCK) -> Triggers SAR flow
+        triggerSarGeneration(res);
+      }
+    }
+
+    function clearWindowState() {
+      transactionLedger = [];
+      renderLedger();
+
+      // Reset UI back to AWAITING INPUT without evaluating a new transaction
+      document.getElementById('scoreText').textContent = '-- / 100';
+      const scoreBar = document.getElementById('scoreBar');
+      scoreBar.style.width = '0%';
+      scoreBar.className = "h-full bg-slate-700 transition-all duration-500";
+
+      document.getElementById('evalLatencyText').textContent = '-- µs';
+      document.getElementById('evalVelocityText').textContent = '-- txs';
+
+      const badge = document.getElementById('decisionBadge');
+      badge.textContent = 'AWAITING INPUT';
+      badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-400 border border-slate-700";
+
+      document.getElementById('signalsContainer').innerHTML = '<span class="text-xs text-slate-500 italic">Awaiting evaluation input...</span>';
+
+      document.getElementById('telemetryAccount').textContent = '--';
+      document.getElementById('telemetryAmount').textContent = '--';
+      document.getElementById('telemetryScore').textContent = '--';
+      document.getElementById('telemetryVelocity').textContent = '--';
+      document.getElementById('telemetrySignals').textContent = '--';
+
+      resetSarPanelAwaiting();
+    }
+
+    // -------------------------------------------------------------
+    // Honest In-Browser Benchmark Runner
+    // -------------------------------------------------------------
+    function runHonestBenchmark() {
+      const iterations = 1000;
+      const testAccount = "ACC-BENCH-TEST";
+      const testAmount = 4850000;
+      const testSpeed = 950;
+      const testDevice = true;
+
+      // Warmup 50 runs to JIT-optimize
+      for (let i = 0; i < 50; i++) {
+        calculateRisk(testAccount, testAmount, testSpeed, testDevice, false);
+      }
+
+      const tStart = performance.now();
+      for (let i = 0; i < iterations; i++) {
+        calculateRisk(testAccount, testAmount, testSpeed, testDevice, false);
+      }
+      const tEnd = performance.now();
+
+      const totalMs = Math.max(0.01, tEnd - tStart);
+      const avgUs = ((totalMs * 1000) / iterations);
+      const tps = Math.round((iterations / totalMs) * 1000);
+
+      document.getElementById('benchTotalMs').textContent = totalMs.toFixed(2) + ' ms';
+      document.getElementById('benchAvgUs').textContent = avgUs.toFixed(2) + ' µs';
+      document.getElementById('benchTps').textContent = tps.toLocaleString() + ' tx/s';
+
+      document.getElementById('benchmarkBox').classList.remove('hidden');
+    }
+
+    // -------------------------------------------------------------
+    // GenAI Suspicious Activity Report (SAR) & Cooldown Guard
+    // -------------------------------------------------------------
+    function updateCooldownUI() {
+      const now = Date.now();
+      const elapsed = now - lastSarCallTime;
+      const remainingSec = Math.max(0, Math.ceil((SAR_COOLDOWN_MS - elapsed) / 1000));
+
+      const textEl = document.getElementById('sarCooldownText');
+      const indicator = document.getElementById('cooldownIndicator');
+
+      if (remainingSec > 0) {
+        textEl.textContent = remainingSec + 's COOLDOWN';
+        textEl.className = "text-sm font-semibold text-amber-400 font-mono";
+        indicator.className = "w-3 h-3 rounded-full bg-amber-400 animate-pulse";
+      } else {
+        textEl.textContent = "READY";
+        textEl.className = "text-sm font-semibold text-emerald-400 font-mono";
+        indicator.className = "w-3 h-3 rounded-full bg-emerald-400";
+      }
+    }
+
+    function startCooldownTimer() {
+      if (cooldownTimerInterval) clearInterval(cooldownTimerInterval);
+      updateCooldownUI();
+      cooldownTimerInterval = setInterval(() => {
+        updateCooldownUI();
+        const remaining = SAR_COOLDOWN_MS - (Date.now() - lastSarCallTime);
+        if (remaining <= 0) {
+          clearInterval(cooldownTimerInterval);
+          cooldownTimerInterval = null;
+          updateCooldownUI();
+        }
+      }, 1000);
+    }
+
+    async function triggerSarGeneration(res) {
+      // Cooldown and Quota Guards
+      const now = Date.now();
+
+      if (sarInFlight) {
+        console.warn("SAR call already in flight");
+        return;
+      }
+
+      // Check Quota Limit
+      if (sarCallCount >= SAR_MAX_CALLS) {
+        renderFallbackAnalysis(res, "QUOTA_EXCEEDED");
+        return;
+      }
+
+      // Check Cooldown
+      if (now - lastSarCallTime < SAR_COOLDOWN_MS) {
+        renderFallbackAnalysis(res, "COOLDOWN_ACTIVE");
+        return;
+      }
+
+      // Check API Key
+      if (!GEMINI_API_KEY || GEMINI_API_KEY.includes("__GEMINI_API_KEY__") || GEMINI_API_KEY.startsWith("__")) {
+        renderFallbackAnalysis(res, "NO_API_KEY");
+        return;
+      }
+
+      // Execute with Primary -> Backup Chain
+      sarInFlight = true;
+      lastSarCallTime = Date.now();
+      sarCallCount++;
+      document.getElementById('sarCallCount').textContent = sarCallCount;
+      startCooldownTimer();
+
+      showSarLoading(true, "Requesting SAR from " + PRIMARY_GEMINI_MODEL + " (Structured JSON)...");
+
+      try {
+        let result = await callGeminiApi(PRIMARY_GEMINI_MODEL, res);
+        renderSarSuccess(result, PRIMARY_GEMINI_MODEL, res);
+      } catch (errPrimary) {
+        console.warn("Primary model failed, attempting backup: " + BACKUP_GEMINI_MODEL, errPrimary);
+        showSarLoading(true, "Primary failed. Attempting backup " + BACKUP_GEMINI_MODEL + "...");
+        try {
+          let resultBackup = await callGeminiApi(BACKUP_GEMINI_MODEL, res);
+          renderSarSuccess(resultBackup, BACKUP_GEMINI_MODEL, res);
+        } catch (errBackup) {
+          console.warn("Backup model failed, using deterministic fallback template", errBackup);
+          renderFallbackAnalysis(res, "NETWORK_FAILOVER");
+        }
+      } finally {
+        sarInFlight = false;
+        showSarLoading(false);
+      }
+    }
+
+    async function callGeminiApi(modelName, res) {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+
+      const prompt = `You are a certified AML Compliance Officer for an Indonesian BFSI institution. 
+Analyze suspicious case for Account: ${res.account}.
+Transaction Amount: IDR ${res.amount.toLocaleString()}.
+Evaluated Risk Score: ${res.score}/100 (Verdict: ${res.decision}).
+Triggered Anomaly Reasons: [${res.reasons.join(", ")}].
+Window Velocity: ${res.velocityCount} transactions in 5 minutes.
+Produce a formal Suspicious Activity Report (SAR) narrative in English strictly conforming to the requested JSON schema.`;
+
+      const requestBody = {
+        contents: [{
+          parts: [{ text: prompt }]
+        }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.2,
+          responseSchema: {
+            type: "OBJECT",
+            properties: {
+              executive_summary: { type: "STRING" },
+              typology_analysis: { type: "STRING" },
+              recommended_actions: {
+                type: "ARRAY",
+                items: { type: "STRING" }
+              }
+            },
+            required: ["executive_summary", "typology_analysis", "recommended_actions"]
+          }
+        }
+      };
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Gemini API HTTP Error ${response.status}: ${response.statusText}`);
+      }
+
+      const json = await response.json();
+      const rawText = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawText) throw new Error("Empty candidate content from Gemini response");
+
+      const cleanJson = rawText.trim().replace(/^```json/i, '').replace(/^```/i, '').replace(/```$/i, '').trim();
+      return JSON.parse(cleanJson);
+    }
+
+    // -------------------------------------------------------------
+    // Dynamic Fallback Generator (Rule-Faithful, No False Claims)
+    // -------------------------------------------------------------
+    function buildDynamicFallbackAnalysis(res, reasonCode = "LOCAL_RULE_FALLBACK") {
+      const reasons = res.reasons || [];
+      let typologyPoints = [];
+      let actions = [
+        "Place a temporary hold on the related account in line with the suspicious-transaction handling SOP",
+        "Send a Request for Information (RFI) to the customer to clarify the transaction"
+      ];
+
+      // Formulate narrative strictly based on the triggered reasons
+      if (reasons.includes("STRUCTURING_SUSPECT")) {
+        typologyPoints.push(
+          "AML structuring / smurfing indicator: repeated transactions just below the mandatory reporting threshold (IDR 5,000,000), consistent with an attempt to avoid cash-transaction reporting."
+        );
+        actions.push("File a Suspicious Transaction Report (STR) with the Financial Intelligence Unit (PPATK)");
+      }
+
+      if (reasons.includes("GEO_IMPOSSIBILITY")) {
+        typologyPoints.push(
+          `Geo-velocity / impossible-travel indicator: access moved at ${res.speed} km/h (threshold > 800 km/h), consistent with account takeover (ATO), proxy bypass, or session hijack.`
+        );
+        actions.push("Reset banking credentials and revoke all active bearer session tokens");
+      }
+
+      if (reasons.includes("VELOCITY_BURST")) {
+        typologyPoints.push(
+          `Velocity burst indicator: abnormal transaction frequency, ${res.velocityCount} transactions in the active sliding window, beyond a normal behavioral profile.`
+        );
+        actions.push("Apply adaptive rate limiting on the customer's payment gateway API");
+      }
+
+      if (reasons.includes("NEW_DEVICE_OR_MODIFIED_ENV")) {
+        typologyPoints.push(
+          "Device anomaly indicator: unrecognized device or modified environment (emulator, rooted device, or spoofed user-agent)."
+        );
+        actions.push("Require biometric step-up authentication (liveness detection) at the next login");
+      }
+
+      if (reasons.includes("HIGH_VALUE_THRESHOLD_EXCEEDED")) {
+        typologyPoints.push(
+          `High-value indicator: transaction amount of IDR ${res.amount.toLocaleString()} exceeds the expected range for a standard customer risk profile.`
+        );
+        actions.push("Request Level-2 Compliance Supervisor approval");
+      }
+
+      if (typologyPoints.length === 0) {
+        typologyPoints.push("The transaction pattern requires compliance review based on the internal deterministic scoring rules.");
+      }
+
+      let sourceLabel = "LOCAL RULE ENGINE FALLBACK";
+      if (reasonCode === "NO_API_KEY") sourceLabel = "LOCAL FALLBACK (AWAITING API KEY)";
+      else if (reasonCode === "COOLDOWN_ACTIVE") sourceLabel = "LOCAL FALLBACK (COOLDOWN GUARDED)";
+      else if (reasonCode === "QUOTA_EXCEEDED") sourceLabel = "LOCAL FALLBACK (SPARK QUOTA PRESERVED)";
+      else if (reasonCode === "NETWORK_FAILOVER") sourceLabel = "LOCAL FALLBACK (API FAILOVER)";
+
+      const executive_summary = `[VERIFIED TELEMETRY FROM LOCAL ENGINE] Suspicious case detected on account ${res.account} with a transaction of IDR ${res.amount.toLocaleString()} (risk score ${res.score}/100, verdict ${res.decision}). The deterministic rule engine identified ${reasons.length} active anomaly signal(s): ${reasons.length ? reasons.join(", ") : "none"}. No typology is assumed beyond the signals that actually fired.`;
+
+      const typology_analysis = typologyPoints.join(" ");
+
+      return {
+        executive_summary,
+        typology_analysis,
+        recommended_actions: actions,
+        source: sourceLabel
+      };
+    }
+
+    function renderSarSuccess(sarData, modelUsed, res) {
+      document.getElementById('sarPlaceholderText').classList.add('hidden');
+      document.getElementById('sarResultArea').classList.remove('hidden');
+
+      const badge = document.getElementById('sarStatusBadge');
+      badge.textContent = modelUsed.toUpperCase() + " (STRUCTURED JSON)";
+      badge.className = "px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/30";
+
+      // Bind data
+      document.getElementById('sarExecutiveSummary').textContent = sarData.executive_summary || "No summary provided.";
+      document.getElementById('sarTypologyAnalysis').textContent = sarData.typology_analysis || "No typology narrative provided.";
+
+      const actionsList = document.getElementById('sarRecommendedActions');
+      actionsList.innerHTML = '';
+      (sarData.recommended_actions || []).forEach(action => {
+        const li = document.createElement('li');
+        li.textContent = action;
+        actionsList.appendChild(li);
+      });
+
+      // Always overwrite telemetry numbers with local engine calculation facts
+      updateTelemetryBox(res);
+    }
+
+    function renderFallbackAnalysis(res, reasonCode) {
+      const fallback = buildDynamicFallbackAnalysis(res, reasonCode);
+
+      document.getElementById('sarPlaceholderText').classList.add('hidden');
+      document.getElementById('sarResultArea').classList.remove('hidden');
+
+      const badge = document.getElementById('sarStatusBadge');
+      badge.textContent = "FALLBACK TEMPLATE ACTIVE";
+      badge.className = "px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30";
+
+      document.getElementById('sarExecutiveSummary').textContent = fallback.executive_summary;
+      document.getElementById('sarTypologyAnalysis').textContent = fallback.typology_analysis;
+
+      const actionsList = document.getElementById('sarRecommendedActions');
+      actionsList.innerHTML = '';
+      fallback.recommended_actions.forEach(action => {
+        const li = document.createElement('li');
+        li.textContent = action;
+        actionsList.appendChild(li);
+      });
+
+      // Overwrite telemetry numbers with local engine calculation facts
+      updateTelemetryBox(res);
+    }
+
+    function resetSarPanelNonBlock(decision) {
+      document.getElementById('sarResultArea').classList.add('hidden');
+      const placeholder = document.getElementById('sarPlaceholderText');
+      placeholder.classList.remove('hidden');
+      placeholder.innerHTML = `
+        <span class="text-slate-400">Current verdict: <strong class="${decision === 'REVIEW' ? 'text-amber-400' : 'text-emerald-400'}">${decision}</strong>.</span><br>
+        SAR generation is only triggered automatically for a <strong class="text-rose-400">BLOCK (&gt;= 80)</strong> verdict, to keep API usage and billing at zero.
+      `;
+
+      const badge = document.getElementById('sarStatusBadge');
+      badge.textContent = "STANDBY (" + decision + ")";
+      badge.className = "px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-400 border border-slate-700";
+    }
+
+    function resetSarPanelAwaiting() {
+      document.getElementById('sarResultArea').classList.add('hidden');
+      const placeholder = document.getElementById('sarPlaceholderText');
+      placeholder.classList.remove('hidden');
+      placeholder.innerHTML = `
+        SAR generation is triggered automatically when the risk score reaches the <strong class="text-rose-400">BLOCK (&gt;= 80)</strong> threshold. 
+        Use <span class="text-rose-300 font-medium">Preset 3: High-Risk Burst</span> to test the GenAI chain.
+      `;
+
+      const badge = document.getElementById('sarStatusBadge');
+      badge.textContent = "STANDBY";
+      badge.className = "px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-400 border border-slate-700";
+    }
+
+    function showSarLoading(show, message = "") {
+      const loader = document.getElementById('sarLoadingState');
+      const loadingText = document.getElementById('sarLoadingText');
+      if (show) {
+        loader.classList.remove('hidden');
+        if (message) loadingText.textContent = message;
+      } else {
+        loader.classList.add('hidden');
+      }
+    }
+  </script>
+</body>
+
+</html>
