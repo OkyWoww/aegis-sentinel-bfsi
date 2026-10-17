@@ -13,8 +13,32 @@ pub struct AppConfig {
     pub benchmark_mode: bool,
 }
 
+fn load_dotenv_if_exists() {
+    let candidates = [".env", "../.env", "rust-engine/.env"];
+    for path in candidates {
+        if let Ok(contents) = std::fs::read_to_string(path) {
+            for line in contents.lines() {
+                let trimmed = line.trim();
+                if trimmed.is_empty() || trimmed.starts_with('#') {
+                    continue;
+                }
+                if let Some((key, value)) = trimmed.split_once('=') {
+                    let key = key.trim();
+                    let val = value.trim().trim_matches('"').trim_matches('\'');
+                    if env::var(key).is_err() && !val.is_empty() {
+                        env::set_var(key, val);
+                    }
+                }
+            }
+            break;
+        }
+    }
+}
+
 impl AppConfig {
     pub fn from_env(benchmark_cli_flag: bool) -> Self {
+        load_dotenv_if_exists();
+
         Self {
             port: env::var("PORT").ok().and_then(|p| p.parse().ok()).unwrap_or(8080),
             api_key: env::var("SCORE_API_KEY").unwrap_or_else(|_| "aegis_sentinel_dev_key_2026".to_string()),

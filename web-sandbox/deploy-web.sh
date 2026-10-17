@@ -21,25 +21,8 @@ echo " AegisSentinel BFSI — Web Sandbox Deployment (Spark Plan)  "
 echo "==========================================================="
 
 # 1. Validate required environment variables
-if [ -z "${GEMINI_API_KEY:-}" ]; then
-  echo "[-] ERROR: Environment variable GEMINI_API_KEY is not set." >&2
-  echo "    Please run:" >&2
-  echo "    export GEMINI_API_KEY=\"your-gemini-api-key\"" >&2
-  echo "    export FIREBASE_PROJECT_ID=\"your-firebase-project-id\"" >&2
-  echo "    ./deploy-web.sh" >&2
-  exit 1
-fi
-
-if [ -z "${FIREBASE_PROJECT_ID:-}" ]; then
-  echo "[-] ERROR: Environment variable FIREBASE_PROJECT_ID is not set." >&2
-  echo "    Please run:" >&2
-  echo "    export GEMINI_API_KEY=\"your-gemini-api-key\"" >&2
-  echo "    export FIREBASE_PROJECT_ID=\"your-firebase-project-id\"" >&2
-  echo "    ./deploy-web.sh" >&2
-  exit 1
-fi
-
-echo "[+] Validation passed: GEMINI_API_KEY and FIREBASE_PROJECT_ID are present."
+FIREBASE_PROJECT_ID="${FIREBASE_PROJECT_ID:-aegis-sentinel-bfsi-11b46}"
+echo "[+] Target Firebase Project ID: ${FIREBASE_PROJECT_ID}"
 
 # 2. Inject FIREBASE_PROJECT_ID into .firebaserc
 echo "[+] Configuring .firebaserc for project: ${FIREBASE_PROJECT_ID}..."
@@ -51,15 +34,12 @@ cat <<EOF > .firebaserc
 }
 EOF
 
-# 3. Inject GEMINI_API_KEY from index.template.html into public/index.html using sed
-echo "[+] Injecting GEMINI_API_KEY into public/index.html..."
+# 3. Prepare public/index.html from index.template.html (zero client-side secrets)
+echo "[+] Syncing index.template.html into public/index.html (secure zero-secret sandbox)..."
 mkdir -p public
+cp index.template.html public/index.html
 
-# Escape special sed characters (& and |) in key if any
-ESCAPED_KEY=$(printf '%s\n' "$GEMINI_API_KEY" | sed -e 's/[\/&]/\\&/g')
-sed "s|__GEMINI_API_KEY__|${ESCAPED_KEY}|g" index.template.html > public/index.html
-
-echo "[+] Created public/index.html (git-ignored for security)."
+echo "[+] Created public/index.html (server-side proxy architecture)."
 
 # 4. Deploy using npx firebase-tools
 echo "[+] Deploying to Firebase Hosting (--only hosting)..."

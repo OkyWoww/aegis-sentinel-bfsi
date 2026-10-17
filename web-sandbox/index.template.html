@@ -512,7 +512,7 @@
     // -------------------------------------------------------------
     const PRIMARY_GEMINI_MODEL = "gemini-3.8-flash";
     const BACKUP_GEMINI_MODEL = "gemini-3.5-flash-lite";
-    const GEMINI_API_KEY = "__GEMINI_API_KEY__";
+    const BACKEND_SAR_ENDPOINT = "http://localhost:8080/v1/sar";
 
     const SAR_COOLDOWN_MS = 15000; // 15 seconds cooldown guard
     const SAR_MAX_CALLS = 20;     // Maximum calls per session (Spark Zero Billing)
@@ -927,7 +927,7 @@
       }, 1000);
     }
 
-    async function triggerSarGeneration(res) {
+    async function generateGeminiSAR(res) {
       // Cooldown and Quota Guards
       const now = Date.now();
 
@@ -936,7 +936,7 @@
         return;
       }
 
-      // Check Quota Limit
+      // Check Quota Limit (Spark Zero Billing guard)
       if (sarCallCount >= SAR_MAX_CALLS) {
         renderFallbackAnalysis(res, "QUOTA_EXCEEDED");
         return;
@@ -948,90 +948,56 @@
         return;
       }
 
-      // Check API Key
-      if (!GEMINI_API_KEY || GEMINI_API_KEY.includes("__GEMINI_API_KEY__") || GEMINI_API_KEY.startsWith("__")) {
-        renderFallbackAnalysis(res, "NO_API_KEY");
-        return;
-      }
-
-      // Execute with Primary -> Backup Chain
+      // Execute via Backend Rust Proxy with Zero-Downtime Deterministic Fallback
       sarInFlight = true;
       lastSarCallTime = Date.now();
       sarCallCount++;
       document.getElementById('sarCallCount').textContent = sarCallCount;
       startCooldownTimer();
 
-      showSarLoading(true, "Requesting SAR from " + PRIMARY_GEMINI_MODEL + " (Structured JSON)...");
+      showSarLoading(true, "Requesting SAR from Rust Backend Proxy (gemini-3.8-flash)...");
+
+      const payload = {
+        account: res.account,
+        amount: Number(res.amount),
+        score: Number(res.score),
+        verdict: res.decision,
+        velocity_count: Number(res.velocityCount || 0),
+        speed: Number(res.speed || 0),
+        reasons: res.reasons || []
+      };
 
       try {
-        let result = await callGeminiApi(PRIMARY_GEMINI_MODEL, res);
-        renderSarSuccess(result, PRIMARY_GEMINI_MODEL, res);
-      } catch (errPrimary) {
-        console.warn("Primary model failed, attempting backup: " + BACKUP_GEMINI_MODEL, errPrimary);
-        showSarLoading(true, "Primary failed. Attempting backup " + BACKUP_GEMINI_MODEL + "...");
-        try {
-          let resultBackup = await callGeminiApi(BACKUP_GEMINI_MODEL, res);
-          renderSarSuccess(resultBackup, BACKUP_GEMINI_MODEL, res);
-        } catch (errBackup) {
-          console.warn("Backup model failed, using deterministic fallback template", errBackup);
-          renderFallbackAnalysis(res, "NETWORK_FAILOVER");
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+        const response = await fetch(BACKEND_SAR_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(`Rust server returned HTTP ${response.status}`);
         }
+
+        const data = await response.json();
+        renderSarSuccess(data, data.source || "SERVER_PROXY", res);
+      } catch (err) {
+        console.warn("Rust backend proxy unreachable or offline, activating local deterministic fallback:", err);
+        renderFallbackAnalysis(res, "BACKEND_UNAVAILABLE");
       } finally {
         sarInFlight = false;
         showSarLoading(false);
       }
     }
 
-    async function callGeminiApi(modelName, res) {
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
-
-      const prompt = `You are a certified AML Compliance Officer for an Indonesian BFSI institution. 
-Analyze suspicious case for Account: ${res.account}.
-Transaction Amount: IDR ${res.amount.toLocaleString()}.
-Evaluated Risk Score: ${res.score}/100 (Verdict: ${res.decision}).
-Triggered Anomaly Reasons: [${res.reasons.join(", ")}].
-Window Velocity: ${res.velocityCount} transactions in 5 minutes.
-Produce a formal Suspicious Activity Report (SAR) narrative in English strictly conforming to the requested JSON schema.`;
-
-      const requestBody = {
-        contents: [{
-          parts: [{ text: prompt }]
-        }],
-        generationConfig: {
-          responseMimeType: "application/json",
-          temperature: 0.2,
-          responseSchema: {
-            type: "OBJECT",
-            properties: {
-              executive_summary: { type: "STRING" },
-              typology_analysis: { type: "STRING" },
-              recommended_actions: {
-                type: "ARRAY",
-                items: { type: "STRING" }
-              }
-            },
-            required: ["executive_summary", "typology_analysis", "recommended_actions"]
-          }
-        }
-      };
-
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody)
-      });
-
-      if (!response.ok) {
-        throw new Error(`Gemini API HTTP Error ${response.status}: ${response.statusText}`);
-      }
-
-      const json = await response.json();
-      const rawText = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!rawText) throw new Error("Empty candidate content from Gemini response");
-
-      const cleanJson = rawText.trim().replace(/^```json/i, '').replace(/^```/i, '').replace(/```$/i, '').trim();
-      return JSON.parse(cleanJson);
-    }
+    // Alias for existing call sites
+    const triggerSarGeneration = generateGeminiSAR;
 
     // -------------------------------------------------------------
     // Dynamic Fallback Generator (Rule-Faithful, No False Claims)
@@ -1088,7 +1054,7 @@ Produce a formal Suspicious Activity Report (SAR) narrative in English strictly 
       if (reasonCode === "NO_API_KEY") sourceLabel = "LOCAL FALLBACK (AWAITING API KEY)";
       else if (reasonCode === "COOLDOWN_ACTIVE") sourceLabel = "LOCAL FALLBACK (COOLDOWN GUARDED)";
       else if (reasonCode === "QUOTA_EXCEEDED") sourceLabel = "LOCAL FALLBACK (SPARK QUOTA PRESERVED)";
-      else if (reasonCode === "NETWORK_FAILOVER") sourceLabel = "LOCAL FALLBACK (API FAILOVER)";
+      else if (reasonCode === "BACKEND_UNAVAILABLE" || reasonCode === "NETWORK_FAILOVER") sourceLabel = "LOCAL FALLBACK (BACKEND PROXY OFFLINE)";
 
       const executive_summary = `[VERIFIED TELEMETRY FROM LOCAL ENGINE] Suspicious case detected on account ${res.account} with a transaction of IDR ${res.amount.toLocaleString()} (risk score ${res.score}/100, verdict ${res.decision}). The deterministic rule engine identified ${reasons.length} active anomaly signal(s): ${reasons.length ? reasons.join(", ") : "none"}. No typology is assumed beyond the signals that actually fired.`;
 
@@ -1102,13 +1068,18 @@ Produce a formal Suspicious Activity Report (SAR) narrative in English strictly 
       };
     }
 
-    function renderSarSuccess(sarData, modelUsed, res) {
+    function renderSarSuccess(sarData, sourceLabel, res) {
       document.getElementById('sarPlaceholderText').classList.add('hidden');
       document.getElementById('sarResultArea').classList.remove('hidden');
 
       const badge = document.getElementById('sarStatusBadge');
-      badge.textContent = modelUsed.toUpperCase() + " (STRUCTURED JSON)";
-      badge.className = "px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/30";
+      if (sarData.source === "GEMINI_3.8_FLASH_LIVE" || sourceLabel === "GEMINI_3.8_FLASH_LIVE" || (sourceLabel && sourceLabel.toUpperCase().includes("GEMINI"))) {
+        badge.textContent = "GEMINI 3.8 FLASH (SERVER PROXY)";
+        badge.className = "px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
+      } else {
+        badge.textContent = "FALLBACK TEMPLATE ACTIVE";
+        badge.className = "px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30";
+      }
 
       // Bind data
       document.getElementById('sarExecutiveSummary').textContent = sarData.executive_summary || "No summary provided.";

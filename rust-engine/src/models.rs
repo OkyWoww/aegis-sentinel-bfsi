@@ -40,7 +40,20 @@ pub struct ScoreResponse {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SarRequest {
-    pub case_id: String,
+    #[serde(default)]
+    pub account: String,
+    #[serde(default)]
+    pub amount: f64,
+    #[serde(default)]
+    pub score: f64,
+    #[serde(default, alias = "decision")]
+    pub verdict: String,
+    #[serde(default, alias = "velocityCount")]
+    pub velocity_count: usize,
+    #[serde(default)]
+    pub speed: f64,
+    #[serde(default)]
+    pub reasons: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -54,10 +67,8 @@ pub enum RiskRating {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SarResponse {
-    pub case_id: String,
-    pub risk_rating: RiskRating,
-    pub narrative_source: String, // "gemini" or "rule_based_fallback"
-    pub narrative: String,
-    pub red_flags: Vec<String>,
-    pub recommended_action: String,
+    pub executive_summary: String,
+    pub typology_analysis: String,
+    pub recommended_actions: Vec<String>,
+    pub source: String, // "GEMINI_3.8_FLASH_LIVE" or "DETERMINISTIC_FALLBACK"
 }

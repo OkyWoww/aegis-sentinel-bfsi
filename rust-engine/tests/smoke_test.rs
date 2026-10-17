@@ -71,4 +71,56 @@ mod tests {
 
         assert!(resp2.reasons.contains(&"STRUCTURING_SUSPECT".to_string()));
     }
+
+    #[tokio::test]
+    async fn test_sar_deterministic_fallback() {
+        use std::sync::Arc;
+        use aegis_sentinel::sar::{CircuitBreaker, GeminiSarClient};
+        use aegis_sentinel::models::SarRequest;
+
+        let cb = Arc::new(CircuitBreaker::new(3, std::time::Duration::from_secs(30)));
+        let client = GeminiSarClient::new("".to_string(), "gemini-3.8-flash".to_string(), cb);
+
+        let req = SarRequest {
+            account: "acc_smoke_sar".to_string(),
+            amount: 4950000.0,
+            score: 100.0,
+            verdict: "BLOCK".to_string(),
+            velocity_count: 5,
+            speed: 920.0,
+            reasons: vec![
+                "VELOCITY_BURST".to_string(),
+                "STRUCTURING_SUSPECT".to_string(),
+                "GEO_IMPOSSIBILITY".to_string(),
+            ],
+        };
+
+        let response = client.generate_sar(&req).await;
+        assert_eq!(response.source, "DETERMINISTIC_FALLBACK");
+        assert!(response.executive_summary.contains("acc_smoke_sar"));
+        assert!(response.typology_analysis.contains("structuring"));
+        assert!(response.typology_analysis.contains("920"));
+        assert!(!response.recommended_actions.is_empty());
+    }
+
+    #[test]
+    fn test_sar_payload_deserialization() {
+        use aegis_sentinel::models::SarRequest;
+
+        let json_data = r#"{
+            "account": "acc_json_test",
+            "amount": 2500000.0,
+            "score": 85.0,
+            "decision": "BLOCK",
+            "velocityCount": 4,
+            "speed": 850.5,
+            "reasons": ["VELOCITY_BURST", "GEO_IMPOSSIBILITY"]
+        }"#;
+
+        let req: SarRequest = serde_json::from_str(json_data).expect("Should deserialize successfully");
+        assert_eq!(req.account, "acc_json_test");
+        assert_eq!(req.verdict, "BLOCK");
+        assert_eq!(req.velocity_count, 4);
+        assert_eq!(req.speed, 850.5);
+    }
 }

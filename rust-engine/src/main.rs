@@ -155,31 +155,16 @@ async fn score_handler(
     Ok((StatusCode::OK, res_headers, Json(response)))
 }
 
-/// Asynchronous Suspicious Activity Report (SAR) Narrative Generation Route
+/// Asynchronous Suspicious Activity Report (SAR) Narrative Generation Route (Proxy to Gemini with Fallback)
 async fn sar_handler(
     State(state): State<AppState>,
-    headers: HeaderMap,
     payload_res: Result<Json<SarRequest>, axum::extract::rejection::JsonRejection>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
-    let api_key = headers
-        .get("x-api-key")
-        .and_then(|h| h.to_str().ok())
-        .unwrap_or_default();
-
-    if !state.config.api_key.is_empty() && api_key != state.config.api_key {
-        return Err((StatusCode::UNAUTHORIZED, "Invalid or missing x-api-key header".to_string()));
-    }
-
     let Json(payload) = payload_res.map_err(|err| {
         (StatusCode::BAD_REQUEST, format!("Invalid JSON payload: {}", err))
     })?;
 
-    // In production, transaction parameters are loaded from Firestore case registry or cache
-    let default_reasons = vec!["VELOCITY_BURST".to_string(), "STRUCTURING_SUSPECT".to_string()];
-    let response = state
-        .sar_client
-        .generate_sar(&payload.case_id, "acc_091238", &default_reasons, 4950000.0)
-        .await;
+    let response = state.sar_client.generate_sar(&payload).await;
 
     Ok((StatusCode::OK, Json(response)))
 }
